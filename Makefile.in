@@ -1,0 +1,5 @@
+src_dir      := @srcdir@
+scripts_dir  := $(src_dir)/src
+
+default:
+	$(scripts_dir)/main.py
