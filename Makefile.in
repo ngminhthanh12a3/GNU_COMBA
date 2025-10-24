@@ -1,5 +1,9 @@
+QUIET=@
 src_dir      := @srcdir@
 scripts_dir  := $(src_dir)/src
 
 default:
-	$(scripts_dir)/main.py
+	$(QUIET) $(scripts_dir)/main.py
+
+jupyterlab:
+	$(QUIET) (cd $(src_dir) && jupyter lab)

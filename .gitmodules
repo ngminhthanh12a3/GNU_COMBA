@@ -1,3 +1,6 @@
-[submodule "verilog-eval"]
-	path = verilog-eval
-	url = https://github.com/NVlabs/verilog-eval.git
+[submodule "ext/mg-verilog"]
+	path = ext/mg-verilog
+	url = https://github.com/GATECH-EIC/mg-verilog.git
+[submodule "ext/verilog-eval"]
+	path = ext/verilog-eval
+	url = git@github.com:ngminhthanh12a3/verilog-eval.git
