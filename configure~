@@ -619,8 +619,6 @@ ac_unique_file="src/main.py"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 samples
-temperature
-max_token
 model
 provider
 target_alias

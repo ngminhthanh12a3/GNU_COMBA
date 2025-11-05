@@ -2,8 +2,14 @@ QUIET=@
 src_dir      := @srcdir@
 scripts_dir  := $(src_dir)/src
 
+GENERATE_FLAGS = --samples=@samples@ --provider=@provider@ --max-tokens=@max_token@ --temperature=@temperature@ --model=@model@
+
 default:
-	$(QUIET) $(scripts_dir)/main.py
+	echo $(scripts_dir)/main.py ${GENERATE_FLAGS}
+	$(QUIET) $(scripts_dir)/main.py ${GENERATE_FLAGS}
 
 jupyterlab:
 	$(QUIET) (cd $(src_dir) && jupyter lab)
+
+verilog-eval:
+	$(src_dir)/ext/verilog-eval/configure --with-model=@model@ --with-task=code-complete-iccad2023 --with-samples=@samples@ --with-examples=0

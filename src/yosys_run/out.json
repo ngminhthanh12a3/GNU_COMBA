@@ -1,0 +1,31 @@
+{
+   "creator": "Yosys 0.58+94 (git sha1 4011d7265, clang++ 18.1.8 -fPIC -O3)",
+   "invocation": "stat -json ",
+   "modules": {
+      "\\comparator": {
+         "num_wires":         99,
+         "num_wire_bits":     113,
+         "num_pub_wires":     5,
+         "num_pub_wire_bits": 19,
+         "num_ports":         5,
+         "num_port_bits":     19,
+         "num_memories":      0,
+         "num_memory_bits":   0,
+         "num_processes":     0,
+         "num_cells":         43,
+         "num_submodules":       0,
+         "num_cells_by_type": {
+            "$_ANDNOT_": 9,
+            "$_AND_": 1,
+            "$_NAND_": 11,
+            "$_NOR_": 16,
+            "$_NOT_": 2,
+            "$_ORNOT_": 2,
+            "$_XNOR_": 1,
+            "$_XOR_": 1
+         }
+      }
+   }
+
+}
+

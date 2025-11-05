@@ -6,3 +6,13 @@ ext-dataset
 .ipynb_checkpoints
 src/unsloth_compiled_cache
 src/pyranet*.json
+src/outputs
+src/llama.cpp
+src/.local*
+src/ErrorCompileItem.json
+src/PyranetStatisticData
+**/__pycache__
+**/bnadimi_PyraNet*.jsonl
+**/*.gguf
+src/pyranet_error_data.txt
+src/pyranet_error_data_2.txt
