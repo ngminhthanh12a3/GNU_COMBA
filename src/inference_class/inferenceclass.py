@@ -3,6 +3,7 @@ import sys
 from huggingface_hub import InferenceClient
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
+from transformers import AutoTokenizer
 
 providers = {
 	"llamacpp": "LLamaCPPInferenceClient",
@@ -25,7 +26,7 @@ class GeneralInferenceClass():
 		self.max_tokens = max_tokens
 		self.temperature = temperature
 		self.top_p = top_p
-	def invoke(self, prompt: list[str]) -> tuple[str, dict]:
+	def invoke(self, prompt: list[str], **kwargs) -> tuple[str, dict]:
 		pass
 	def free_model(self):
 		pass
@@ -64,7 +65,7 @@ class HuggingFaceInferenceClient(GeneralInferenceClass):
 		print(f"Loading model from HuggingFace: {self.model}")
 		self.llm = InferenceClient(
 			model=self.model,
-			base_url="https://ivamvf7duqa3vwwl.us-east-1.aws.endpoints.huggingface.cloud"
+			base_url="https://nb-f8ef48ad-492e-4b6e-8d7c-4544a6bcdc53-8888-sea1.notebook.console.greennode.ai/v1"
 		)
 	def invoke(self, prompt: list[str]):
 		# response : str = self.llm.invoke(prompt)
@@ -80,14 +81,28 @@ class OpenAiInferenceClient(GeneralInferenceClass):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		print(f"Loading model from HuggingFace: {self.model}")
+		token="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"
 		self.llm = OpenAI(
-			base_url = "https://a3tj6snd966fb5rq.us-east-1.aws.endpoints.huggingface.cloud/v1/",
-			api_key = "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",
-			
+			base_url = "https://ph5eo7wv62ydyan0.us-east-1.aws.endpoints.huggingface.cloud/v1/",
+			api_key = token,
+			# api_key = "",
 		)
-	def invoke(self, prompt: list[str]):
+		self.tokenizer = AutoTokenizer.from_pretrained(self.model, token=token)
+	def invoke(self, prompt: list[str],**kwargs):
 		# response : str = self.llm.invoke(prompt)
-		messages = [{"role": "user", "content": message} for message in prompt]
+		if 'chatArgs' in kwargs:
+			messages = kwargs['chatArgs']
+		elif 'promptArgs' in kwargs:
+			messages = []
+			for i in range(len(kwargs['promptArgs'])):
+				instruction = kwargs['promptArgs'][i]['instruction']
+				messages.append({"role": "user", "content": instruction})
+				if 'response' in kwargs['promptArgs'][i]:
+					response = kwargs['promptArgs'][i]['response']
+					messages.append({"role": "assistant", "content": response})
+
+		else:
+			messages = [{"role": "user", "content": message} for message in prompt]
 		# print(messages)
 		# exit(123)
 		response = self.llm.chat.completions.create(
@@ -96,7 +111,7 @@ class OpenAiInferenceClient(GeneralInferenceClass):
 			max_tokens=self.max_tokens, 
 			temperature=self.temperature,
 			top_p=self.top_p,
-			
+			# stop=self.tokenizer.eos_token,
 		)
 		# response = self.llm.chat_completion(messages=[{"role": "user", "content": prompt}], max_tokens=self.max_tokens, temperature=self.temperature)
 

@@ -618,6 +618,8 @@ PACKAGE_URL=''
 ac_unique_file="src/main.py"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+model_manual
+examples
 samples
 temperature
 max_token
@@ -670,6 +672,8 @@ with_model
 with_max_token
 with_temperature
 with_samples
+with_examples
+with_model_manual
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1296,6 +1300,8 @@ Optional Packages:
   --with-max_token        Max output tokens
   --with-temperature      Temperature
   --with-samples          Number of samples for each problem
+  --with-examples         Number of examples for ICL context
+  --with-model-manual     Base URL of model
 
 Report bugs to <Vu-Minh-Thanh Nguyen nvmthanh@hcmus.edu.vn>.
 _ACEOF
@@ -1826,6 +1832,41 @@ fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: using samples: ${samples}" >&5
 printf "%s\n" "$as_me: using samples: ${samples}" >&6;}
 
+#-------------------------------------------------------------------------
+# --with-examples
+#-------------------------------------------------------------------------
+
+
+# Check whether --with-examples was given.
+if test ${with_examples+y}
+then :
+  withval=$with_examples; examples="${with_examples}"
+else $as_nop
+  examples="0"
+fi
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: using examples: ${examples}" >&5
+printf "%s\n" "$as_me: using examples: ${examples}" >&6;}
+
+#-------------------------------------------------------------------------
+# --with-model-manual
+#-------------------------------------------------------------------------
+
+
+# Check whether --with-model-manual was given.
+if test ${with_model_manual+y}
+then :
+  withval=$with_model_manual; model_manual="${with_model_manual}"
+else $as_nop
+  model_manual=True
+fi
+
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: using model-manual: ${model_manual}" >&5
+printf "%s\n" "$as_me: using model-manual: ${model_manual}" >&6;}
 
 #-------------------------------------------------------------------------
 # Output

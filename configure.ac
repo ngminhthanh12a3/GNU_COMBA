@@ -82,6 +82,29 @@ AC_ARG_WITH(samples,
 AC_SUBST([samples])
 AC_MSG_NOTICE([using samples: ${samples}])
 
+#-------------------------------------------------------------------------
+# --with-examples
+#-------------------------------------------------------------------------
+
+AC_ARG_WITH(examples,
+  AS_HELP_STRING([--with-examples],[Number of examples for ICL context]),
+  [examples="${with_examples}"],
+  [examples="0"])
+
+AC_SUBST([examples])
+AC_MSG_NOTICE([using examples: ${examples}])
+
+#-------------------------------------------------------------------------
+# --with-model-manual 
+#-------------------------------------------------------------------------
+
+AC_ARG_WITH(model-manual,
+  AS_HELP_STRING([--with-model-manual],[Base URL of model]),
+  [model_manual="${with_model_manual}"],
+  [model_manual=True])
+
+AC_SUBST([model_manual])
+AC_MSG_NOTICE([using model-manual: ${model_manual}])
 
 #-------------------------------------------------------------------------
 # Output

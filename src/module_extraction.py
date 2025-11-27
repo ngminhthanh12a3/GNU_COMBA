@@ -21,6 +21,7 @@ def module_extraction(example_code, format_code=False):
     num_indexs = 0
     comment_stage = 0
     multiline_comment = [False, -1]
+    all_comment_ranges = []
     for i in range(len(code_lines)):
         line = code_lines[i]
         num_indexs += (i > 0) # plus previous \n
@@ -125,7 +126,7 @@ def module_extraction(example_code, format_code=False):
 
         section_start_idx = 0
         cur_section = ''
-
+        all_comment_ranges.append(comment_ranges[:])
         if len(comment_ranges): # sort for correct order
             comment_ranges.sort(key=lambda item: item[0])
             
@@ -193,7 +194,6 @@ def module_extraction(example_code, format_code=False):
                         # regex_stage = 0
     
             num_indexs += section_start_idx - old_section_start_idx
-            
     if len(module_def_span.shape) < 2:
         error_txt = f"Module span is all null {len(example_code)}: {example_code}"
         
@@ -217,5 +217,54 @@ def module_extraction(example_code, format_code=False):
         else:
             span[0] = module_def_span[i-1][-1] + 1
         module_definition_with_upper_comments += [example_code[span[0]:span[2]]]
+        
+    return (module_definition, module_output_code, module_definition_with_upper_comments, module_def_span, all_comment_ranges)
 
-    return (module_definition, module_output_code, module_definition_with_upper_comments, module_def_span)
+logic_keywords = ["always",	"and", "assign",
+                  "not", "nand", "nor",  "or", 
+                  # "pull0","pull1",	"strong0","strong1","supply0","supply1",
+                  # "weak0", "weak1",
+                  "xnor","xor", "display"]
+
+def is_module_contain_logic(cur_code, all_comment_ranges=None):
+    # cur_code = dataset_no_logic['code'][i]
+    # cur_code = cur_code.replace("\\\\", "\\")
+
+    if all_comment_ranges == None:
+        all_comment_ranges = module_extraction(cur_code)
+        all_comment_ranges = all_comment_ranges[-1]
+
+    cur_code_lines = cur_code.splitlines()
+    final_code = ""
+    for ii in range(len(cur_code_lines)):
+        cur_code_line = np.array(list(cur_code_lines[ii]))
+        cur_comment_ranges = all_comment_ranges[ii]
+
+        filter_range = [i for i in range(len(cur_code_line))]
+
+        for comment_range in cur_comment_ranges:
+            if len(comment_range):
+                start_range, end_range = comment_range
+                if end_range == None:
+                    end_range = len(cur_code_line)
+            else:
+                continue
+
+            for iii in range(start_range, end_range):
+                if iii in filter_range:
+                    filter_range.remove(iii)
+        final_code += ''.join(cur_code_line[filter_range]) + "\n"
+    
+    found_logic_keyword = False
+
+    for keyword in logic_keywords:
+        match = re.search(r"\b" + re.escape(keyword) + r"\b", final_code)
+        if match:
+            found_logic_keyword = True
+            break
+    return found_logic_keyword, final_code
+    # if not found_logic_keyword:
+    #     # no_logic_index.append(i)
+    #     # return dataset_no_logic["big_idx"][i]
+    #     return i
+    # return None
