@@ -107,6 +107,18 @@ AC_SUBST([model_manual])
 AC_MSG_NOTICE([using model-manual: ${model_manual}])
 
 #-------------------------------------------------------------------------
+# --with-task
+#-------------------------------------------------------------------------
+
+AC_ARG_WITH(task,
+  AS_HELP_STRING([--with-task],[Task to execute: spec-to-rtl or code-complete-iccad2023]),
+  [task="${with_task}"],
+  [task="code-complete-iccad2023"])
+
+AC_SUBST([task])
+AC_MSG_NOTICE([using task: ${task}])
+
+#-------------------------------------------------------------------------
 # Output
 #-------------------------------------------------------------------------
 

@@ -618,7 +618,6 @@ PACKAGE_URL=''
 ac_unique_file="src/main.py"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
-task
 model_manual
 examples
 samples
@@ -675,7 +674,6 @@ with_temperature
 with_samples
 with_examples
 with_model_manual
-with_task
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1304,8 +1302,6 @@ Optional Packages:
   --with-samples          Number of samples for each problem
   --with-examples         Number of examples for ICL context
   --with-model-manual     Base URL of model
-  --with-task             Task to execute: spec-to-rtl or
-                          code-complete-iccad2023
 
 Report bugs to <Vu-Minh-Thanh Nguyen nvmthanh@hcmus.edu.vn>.
 _ACEOF
@@ -1871,24 +1867,6 @@ fi
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: using model-manual: ${model_manual}" >&5
 printf "%s\n" "$as_me: using model-manual: ${model_manual}" >&6;}
-
-#-------------------------------------------------------------------------
-# --with-task
-#-------------------------------------------------------------------------
-
-
-# Check whether --with-task was given.
-if test ${with_task+y}
-then :
-  withval=$with_task; task="${with_task}"
-else $as_nop
-  task="code-complete-iccad2023"
-fi
-
-
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: using task: ${task}" >&5
-printf "%s\n" "$as_me: using task: ${task}" >&6;}
 
 #-------------------------------------------------------------------------
 # Output

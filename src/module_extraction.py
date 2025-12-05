@@ -220,7 +220,7 @@ def module_extraction(example_code, format_code=False):
         
     return (module_definition, module_output_code, module_definition_with_upper_comments, module_def_span, all_comment_ranges)
 
-logic_keywords = ["always",	"and", "assign",
+logic_keywords = ["always", "always_comb",	"and", "assign",
                   "not", "nand", "nor",  "or", 
                   # "pull0","pull1",	"strong0","strong1","supply0","supply1",
                   # "weak0", "weak1",

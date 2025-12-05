@@ -13,4 +13,4 @@ jupyterlab:
 
 verilog-eval:
 	cp config.log config.log.old
-	$(src_dir)/ext/verilog-eval/configure --with-model=@model@ --with-task=code-complete-iccad2023 --with-samples=@samples@ --with-examples=0 --with-model-manual=@model_manual@
+	$(src_dir)/ext/verilog-eval/configure --with-model=@model@ --with-task=@task@ --with-samples=@samples@ --with-examples=0 --with-model-manual=@model_manual@
