@@ -84,7 +84,7 @@ def module_extraction(example_code, format_code=False):
                 else:
                     if single_slash_end_index[0] != -1:
                         if (double_slash_index[0] != -1 and double_slash_index[0] > single_slash_end_index[0]) or (single_slash_index[0] != -1 and single_slash_index[0] > single_slash_end_index[0]) or (double_slash_index[0] == -1 and single_slash_index[0] == -1):
-                            raise Exception("Error end of multiline comment!!!")
+                            raise Exception(f"Error end of multiline comment!!!\n{example_code}")
                 
                 if not multiline_comment[0]:
                     if double_slash_index[0] != -1:

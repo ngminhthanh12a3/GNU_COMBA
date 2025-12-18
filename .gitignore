@@ -19,3 +19,4 @@ src/pyranet_error_data_2.txt
 src/TrainDataset
 utils/Pyranet_no_logic.jsonl
 utils/found
+src/.cache_count_num_cell/*
