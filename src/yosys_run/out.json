@@ -1,44 +1,48 @@
 {
-   "creator": "Synlig (git sha1 2d838edc9, g++ 12.2.0-14 -fPIC -O3)",
+   "creator": "Yosys 0.60+51 (git sha1 64a933d77, clang++ 18.1.8 -fPIC -O3)",
    "invocation": "stat -json ",
    "modules": {
-      "\\util_axis_fifo": {
-         "num_wires":         40,
-         "num_wire_bits":     756,
-         "num_pub_wires":     19,
-         "num_pub_wire_bits": 222,
-         "num_ports":         13,
-         "num_port_bits":     147,
-         "num_memories":      1,
-         "num_memory_bits":   1024,
-         "num_processes":     3,
-         "num_cells":         10,
+      "\\CAM": {
+         "num_wires":         1062412,
+         "num_wire_bits":     27164098,
+         "num_pub_wires":     11,
+         "num_pub_wire_bits": 2117,
+         "num_ports":         9,
+         "num_port_bits":     37,
+         "num_memories":      0,
+         "num_memory_bits":   0,
+         "num_processes":     0,
+         "num_cells":         1052421,
+         "num_submodules":       0,
          "num_cells_by_type": {
-            "$eq": 3,
-            "$logic_and": 2,
-            "$logic_or": 2,
-            "$memrd": 1,
-            "$not": 2
+            "$aldff": 259,
+            "$dffe": 1,
+            "$eq": 256,
+            "$logic_not": 257,
+            "$mux": 528896,
+            "$not": 522752
          }
       }
    },
       "design": {
-         "num_wires":         40,
-         "num_wire_bits":     756,
-         "num_pub_wires":     19,
-         "num_pub_wire_bits": 222,
-         "num_ports":         13,
-         "num_port_bits":     147,
-         "num_memories":      1,
-         "num_memory_bits":   1024,
-         "num_processes":     3,
-         "num_cells":         10,
+         "num_wires":         1062412,
+         "num_wire_bits":     27164098,
+         "num_pub_wires":     11,
+         "num_pub_wire_bits": 2117,
+         "num_ports":         9,
+         "num_port_bits":     37,
+         "num_memories":      0,
+         "num_memory_bits":   0,
+         "num_processes":     0,
+         "num_cells":         1052421,
+         "num_submodules":       0,
          "num_cells_by_type": {
-            "$eq": 3,
-            "$logic_and": 2,
-            "$logic_or": 2,
-            "$memrd": 1,
-            "$not": 2
+            "$aldff": 259,
+            "$dffe": 1,
+            "$eq": 256,
+            "$logic_not": 257,
+            "$mux": 528896,
+            "$not": 522752
          }
       }
 }

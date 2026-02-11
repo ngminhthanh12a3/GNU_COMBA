@@ -119,6 +119,18 @@ AC_SUBST([task])
 AC_MSG_NOTICE([using task: ${task}])
 
 #-------------------------------------------------------------------------
+# --with-revision
+#-------------------------------------------------------------------------
+
+AC_ARG_WITH(revision,
+  AS_HELP_STRING([--with-revision],[Revision pf LLM]),
+  [revision="${with_revision}"],
+  [revision="None"])
+
+AC_SUBST([revision])
+AC_MSG_NOTICE([using revision: ${revision}])
+
+#-------------------------------------------------------------------------
 # Output
 #-------------------------------------------------------------------------
 

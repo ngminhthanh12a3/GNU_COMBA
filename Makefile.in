@@ -1,15 +1,16 @@
+JUPYTER_ARGS='--ip 0.0.0.0 --no-browser'
 QUIET=@
 src_dir      := @srcdir@
 scripts_dir  := $(src_dir)/src
 
-GENERATE_FLAGS = --samples=@samples@ --examples=@examples@ --provider=@provider@ --max-tokens=@max_token@ --temperature=@temperature@ --model=@model@
+GENERATE_FLAGS = --samples=@samples@ --examples=@examples@ --provider=@provider@ --max-tokens=@max_token@ --temperature=@temperature@ --model=@model@ --revision=@revision@
 
 default:
 	echo $(scripts_dir)/main.py ${GENERATE_FLAGS}
 	$(QUIET) $(scripts_dir)/main.py ${GENERATE_FLAGS}
 
 jupyterlab:
-	$(QUIET) (cd $(src_dir) && jupyter lab)
+	$(QUIET) (cd $(src_dir) && jupyter lab $JUPYTER_ARGS)
 
 verilog-eval:
 	cp config.log config.log.old

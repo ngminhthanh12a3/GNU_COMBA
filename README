@@ -2,6 +2,10 @@
 
 Based on VerilogEval
 
+Set up:
+
+`git submodule update --init --recursive`
+
 ## 0.0.0
 
 - Base prompt for inform reference code to automatically provide XML-based descriptions.

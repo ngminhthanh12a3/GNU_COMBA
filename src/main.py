@@ -7,8 +7,9 @@ from langchain_community.llms import LlamaCpp
 from langchain_core.prompts import PromptTemplate
 from tqdm import tqdm
 import argparse
+from multiprocessing.managers import BaseManager
+from multiprocess import Pool
 
-#
 workDir = os.getcwd()
 srcDir = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, os.path.abspath(f"{srcDir}/inference_class"))
@@ -41,6 +42,7 @@ def parse_cmdline():
 	p.add_argument( "-m", "--model",	   type=str,   default="gpt-3.5-turbo" )
 	p.add_argument( "-P", "--top-p",	   type=float, default=0.95 )
 	p.add_argument( "-x", "--examples",	type=int,   default=0 )
+	p.add_argument( "-r", "--revision",	type=str,   default=None )
 	# p.add_argument( "-v", "--verbose",	 action="store_true" )
 	# p.add_argument( "-l", "--list-models", action="store_true" )
 	# p.add_argument( "-e", "--explain",	 action="store_true" )
@@ -264,6 +266,7 @@ def main():
 	model = opts.model
 	top_p = opts.top_p
 	examples = opts.examples
+	revision = opts.revision
 
 	global inference_client
 	inference_client = InferenceClass(
@@ -272,13 +275,14 @@ def main():
 		max_tokens=max_tokens,
 		temperature=temperature,
 		provider=provider,
-		top_p=top_p
+		top_p=top_p,
+		revision=revision
 	)
 	@atexit.register
 	def free_model():
 		inference_client.free_model()
 	
-	global pbar
+	# global pbar
 	global problemPromptsPath
 	problemPromptsPath.sort()
 	curProblemsPath.sort()
@@ -287,12 +291,17 @@ def main():
 		problemPromptsPath_basename = list(map(lambda x: os.path.basename(x), problemPromptsPath))
 		
 		last_idx = problemPromptsPath_basename.index(curProblemsPath[-1]+"_prompt.txt")
-		last_idx = int(input("Last index: "+ str(last_idx)).strip() or last_idx)
+		last_idx = int(input("Continue with Last index? "+ str(last_idx)).strip() or last_idx)
 		problemPromptsPath = problemPromptsPath[last_idx:]
 	
-	pbar = tqdm(total=len(problemPromptsPath) * num_samples)
-
-	for problemPromptPath in problemPromptsPath:
+	# pbar = tqdm(total=len(problemPromptsPath) * num_samples)
+	problemSets = [(x, y) for y in range(1, num_samples + 1) for x in problemPromptsPath]
+	# exit()
+	# for problemPromptPath in problemPromptsPath:
+	def do_process(problemSet):
+		# print("problemSet", problemSet)
+		# exit()
+		problemPromptPath, setIndex = problemSet
 		problemPrompt = ""
 		with open(problemPromptPath, 'r') as file:
 			problemPrompt = file.read()
@@ -331,12 +340,14 @@ Further explanation must be construct as the syntax of Verilog comment."""
 		
 		# print(inputprompt)
 		# break
-		for i in range(1,num_samples + 1):
+		i = setIndex
+		# for i in range(1,num_samples + 1):
+		for _ in range(1):
 			additionalPrompt = []
 			# lastError = []
 			# isPromptCommentComplete = None
 			oft_trial_i = 0
-			while True and oft_trial_i < 2:
+			while True and oft_trial_i < 20:
 				loop_break = True
 				chatArgs = None
 # 				while len(lastError):
@@ -353,14 +364,39 @@ Further explanation must be construct as the syntax of Verilog comment."""
 					json.dump(chatArgs, file)
 				if additionalPrompt:
 					additionalPrompt.clear()
-				resp, resp_statistic = inference_client.invoke(None, chatArgs=chatArgs)
 				
-				with open(f"{problemPromptFileNameNoSuffix}/{problemPromptFileNameNoSuffix}_sample{i:02d}_response_all.txt", 'w+') as file:
-					print(resp, file=file)
-				
-				with open(f"{problemPromptFileNameNoSuffix}/{problemPromptFileNameNoSuffix}_sample{i:02d}_statistic.json", 'w+') as file:
-					json.dump(resp_statistic, file)
+				response_all_filepath = f"{problemPromptFileNameNoSuffix}/{problemPromptFileNameNoSuffix}_sample{i:02d}_response_all.txt"
+				statistic_all_filepath = f"{problemPromptFileNameNoSuffix}/{problemPromptFileNameNoSuffix}_sample{i:02d}_statistic.json"
+				if True:
+					resp, resp_statistic = inference_client.invoke(None, chatArgs=chatArgs)
+					
+					#
+					# Post process
+					generation_prompt = '### Response:'
+					if generation_prompt in resp:
+						with open(f"{problemPromptFileNameNoSuffix}/error.txt", "a+") as file:
+							file.write(f"\n{i}: Generation prompt")
+						
+						generation_prompt_idx = resp.find(generation_prompt)
+						resp = resp[generation_prompt_idx+len(generation_prompt):]
 
+					with open(response_all_filepath, 'w+') as file:
+						print(resp, file=file)
+					
+					with open(statistic_all_filepath, 'w+') as file:
+						json.dump(resp_statistic, file)
+				
+
+				# if not os.path.isfile(statistic_all_filepath):
+				# 	break
+				# else:
+				# 	# print(f'Skip mo')
+				# 	with open(response_all_filepath, 'r') as file:
+				# 		resp = file.read()
+					
+				# 	with open(statistic_all_filepath, 'r') as file:
+				# 		resp_statistic = json.load(file)
+					
 				module_extraction_success = True
 				try:
 					
@@ -382,6 +418,11 @@ Further explanation must be construct as the syntax of Verilog comment."""
 					cur_full_code = '\n'.join(module_definition) + '\n'.join(module_output_code)
 					# print(cur_full_code)
 					is_cur_module_contain_logic, final_code = is_module_contain_logic(cur_full_code, all_comment_ranges=all_comment_ranges)
+					if is_cur_module_contain_logic == None and final_code == None:
+						loop_break = False
+						with open(f"{problemPromptFileNameNoSuffix}/error.txt", "a+") as file:
+							file.write(f"\n{i}: Comment parsing failed")
+						oft_trial_i += 1
 					
 					#
 					# is_module_contain_comment = False
@@ -396,6 +437,7 @@ Further explanation must be construct as the syntax of Verilog comment."""
 							{'role': 'user', 'content': "The Verilog code must contain one of keywords performing logic operations, such as \"always\", \"and\", \"assign\", \"not\", \"nand\", \"nor\", \"or\", \"xnor\", \"xor\", or \"display\"."},
 						  ]
 						loop_break = False
+						oft_trial_i += 1
 						with open(f"{problemPromptFileNameNoSuffix}/error.txt", "a+") as file:
 							file.write(f"\n{i}: No logic keyword")
 					# elif is_module_contain_comment and (not isPromptCommentComplete):
@@ -409,12 +451,22 @@ Further explanation must be construct as the syntax of Verilog comment."""
 					break
 				
 			# print(all_comment_ranges)
-			pbar.update(1)
+			# pbar.update(1)
 			# break
+	num_core = os.cpu_count() - 12
+	my_range = problemSets
+
+	# synth_error_ex = set()
+	# synth_timeout_ex = set()
+	# all_total_num_cells = [None] * (len(my_range))
+	with Pool(processes=num_core) as pool:
+		for _ in tqdm(iterable=pool.imap(do_process, my_range), total=len(my_range)):
+			pass
+
 
 def EndProcesdures():
 	inference_client.free_model()
-	pbar.close()
+	# pbar.close()
 
 if __name__ == "__main__":
 	try:

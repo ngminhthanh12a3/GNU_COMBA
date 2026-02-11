@@ -4,11 +4,23 @@ from huggingface_hub import InferenceClient
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from transformers import AutoTokenizer
+from vllm import LLM, SamplingParams
+from typing import Optional
+import logging
+import openai
+
+# Set the logging level for the 'openai' logger to ERROR or CRITICAL
+logging.getLogger("openai").setLevel(logging.ERROR)
+
+# Set the logging level for the 'httpx' logger to ERROR or CRITICAL
+# This is often the source of HTTP request/response logs
+logging.getLogger("httpx").setLevel(logging.ERROR)
 
 providers = {
 	"llamacpp": "LLamaCPPInferenceClient",
 	"huggingface": "HuggingFaceInferenceClient",
-	"openai": "OpenAiInferenceClient"
+	"openai": "OpenAiInferenceClient",
+	"vllm": "VLLMInferenceClient",
 }
 
 default_provider = list(providers.keys())[0]
@@ -21,11 +33,12 @@ class InferenceClass():
 			raise Exception(f"Provider {provider} not supported. Supported providers are: {list(providers.keys())}")
 
 class GeneralInferenceClass():
-	def __init__(self, model: str, max_tokens: int, temperature: float, top_p: float):
+	def __init__(self, model: str, max_tokens: int, temperature: float, top_p: float, revision: Optional[str]=None):
 		self.model = model
 		self.max_tokens = max_tokens
 		self.temperature = temperature
 		self.top_p = top_p
+		self.revision = revision
 	def invoke(self, prompt: list[str], **kwargs) -> tuple[str, dict]:
 		pass
 	def free_model(self):
@@ -80,11 +93,12 @@ class HuggingFaceInferenceClient(GeneralInferenceClass):
 class OpenAiInferenceClient(GeneralInferenceClass):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		print(f"Loading model from HuggingFace: {self.model}")
 		token="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"
+		base_url="http://localhost:8000/v1/"
+		print(f"Loading model from HuggingFace: {self.model}, {base_url}")
 		self.llm = OpenAI(
-			base_url = "https://ph5eo7wv62ydyan0.us-east-1.aws.endpoints.huggingface.cloud/v1/",
-			api_key = token,
+			base_url=base_url,
+			api_key="",
 			# api_key = "",
 		)
 		self.tokenizer = AutoTokenizer.from_pretrained(self.model, token=token)
@@ -103,18 +117,63 @@ class OpenAiInferenceClient(GeneralInferenceClass):
 
 		else:
 			messages = [{"role": "user", "content": message} for message in prompt]
-		# print(messages)
-		# exit(123)
 		response = self.llm.chat.completions.create(
 			model=self.model,
 			messages=messages,
 			max_tokens=self.max_tokens, 
 			temperature=self.temperature,
 			top_p=self.top_p,
+			
+			# stop=self.tokenizer.eos_token,
+		)
+		# print(response)
+		# exit(123)
+		# response = self.llm.chat_completion(messages=[{"role": "user", "content": prompt}], max_tokens=self.max_tokens, temperature=self.temperature)
+
+		return (response.choices[0].message.content, 
+		  {"completion_tokens": response.usage.completion_tokens,
+		 	"prompt_tokens": response.usage.prompt_tokens,
+		   "total_tokens": response.usage.total_tokens})
+	
+class VLLMInferenceClient(GeneralInferenceClass):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		print(f"Loading model from HuggingFace: {self.model}")
+		token="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"
+		self.llm = LLM(
+			model= self.model,
+			hf_token= token,
+			revision=self.revision
+			# api_key = "",
+		)
+		self.samplingParams = SamplingParams(temperature=self.temperature,
+									   max_tokens=self.max_tokens,
+									   top_p=self.top_p)
+	def invoke(self, prompt: list[str],**kwargs):
+		# response : str = self.llm.invoke(prompt)
+		if 'chatArgs' in kwargs:
+			messages = kwargs['chatArgs']
+		elif 'promptArgs' in kwargs:
+			messages = []
+			for i in range(len(kwargs['promptArgs'])):
+				instruction = kwargs['promptArgs'][i]['instruction']
+				messages.append({"role": "user", "content": instruction})
+				if 'response' in kwargs['promptArgs'][i]:
+					response = kwargs['promptArgs'][i]['response']
+					messages.append({"role": "assistant", "content": response})
+
+		else:
+			messages = [{"role": "user", "content": message} for message in prompt]
+		# print(messages)
+		# exit(123)
+		response = self.llm.chat(
+			messages=messages,
+			sampling_params=self.samplingParams
 			# stop=self.tokenizer.eos_token,
 		)
 		# response = self.llm.chat_completion(messages=[{"role": "user", "content": prompt}], max_tokens=self.max_tokens, temperature=self.temperature)
-
+		print(response)
+		exit()
 		return (response.choices[0].message.content, 
 		  {"completion_tokens": response.usage.completion_tokens,
 		 	"prompt_tokens": response.usage.prompt_tokens,
