@@ -20,3 +20,4 @@ src/TrainDataset
 utils/Pyranet_no_logic.jsonl
 utils/found
 src/.cache_count_num_cell*
+**/*.env

@@ -101,7 +101,7 @@ class OpenAiInferenceClient(GeneralInferenceClass):
 			api_key="",
 			# api_key = "",
 		)
-		self.tokenizer = AutoTokenizer.from_pretrained(self.model, token=token)
+		# self.tokenizer = AutoTokenizer.from_pretrained(self.model, token=token)
 	def invoke(self, prompt: list[str],**kwargs):
 		# response : str = self.llm.invoke(prompt)
 		if 'chatArgs' in kwargs:
