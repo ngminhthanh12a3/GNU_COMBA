@@ -26,7 +26,10 @@ def seq_process_func_setup():
 def seq_process_func_run_processes(**kwargs):
 	for process_name in seq_process_config["flow"]:
 		print(f"Running process: {process_name}")
-
+		# if seq_flow_cnt < len(seq_process_list):
+		input(f"Start flow \"{process_name}\"."
+		f"\nUpdate inputs in \"inpus/{process_name}.json\"."
+		"Then press Enter to continue to the start flow...")
 		spec = importlib.util.spec_from_file_location(process_name, f"{str(cur_main_path)}/scripts/{process_name}.py")
 		process_module = importlib.util.module_from_spec(spec)
 		spec.loader.exec_module(process_module)
@@ -55,9 +58,11 @@ def main():
 				case 1:
 					seq_process_input = {"cur_main_path": cur_main_path}
 			
+
 			seq_process_list[seq_flow_cnt](**seq_process_input)
 			
 			seq_flow_cnt += 1
+
 			# seq_flow_cnt %= len(seq_process_list)
 			
 	except KeyboardInterrupt:

@@ -1,1 +1,4 @@
-{}
+{
+	"extract_ranges": "6-10",
+	"output_dir_relative": "TrainDataset"
+}

@@ -15,7 +15,7 @@ load_dotenv()
 
 class PyranetExtractDataseByRangeOfLogicCell(BaseProcessClass):
 	def run(self):
-		print(self.trigger_path)
+		# print(self.trigger_path)
 		sys.path.append(self.trigger_path)
 
 		model_name = "unsloth/Qwen2.5-Coder-7B-Instruct"
@@ -90,7 +90,7 @@ class PyranetExtractDataseByRangeOfLogicCell(BaseProcessClass):
 		all_cell_num_with_no_null_0_100 = np.column_stack((all_cell_num_with_no_null_0_100, [None] * len(all_cell_num_with_no_null_0_100)))
 
 		start_i = 1
-		stop_i = 40
+		stop_i = 41
 		step_i = 5
 		for i in range(len(all_cell_num_with_no_null_0_100)):
 			int_x = all_cell_num_with_no_null_0_100[i][0]
@@ -104,16 +104,23 @@ class PyranetExtractDataseByRangeOfLogicCell(BaseProcessClass):
 						all_cell_num_with_no_null_0_100[i][2] = f'{cur_range[0]}-{cur_range[1]}'
 						break
 		
-		filter_idxs = np.where(all_cell_num_with_no_null_0_100[:, 2] != None)[0]
-		old_training_idxs = np.array([])
+		# filter_idxs = np.where(all_cell_num_with_no_null_0_100[:, 2] != None)[0]
+		# old_training_idxs = np.array([])
 		# setdiff1d_of2 = np.setdiff1d(filter_idxs, old_training_idxs, assume_unique=True)
 		# dataset_ranges = np.unique(all_cell_num_with_no_null_0_100[:, 2])
-		segment_idxs = np.where(all_cell_num_with_no_null_0_100[:, 2] == '0-0')[0]
-		segment_idxs_2 = np.where(all_cell_num_with_no_null_0_100[:, 2] == '1-5')[0]
-		segment_idxs = np.concatenate((segment_idxs, segment_idxs_2))
+		extract_ranges_str = self.input_args.get("extract_ranges")
+		extract_ranges = extract_ranges_str.split(",")
+		
+		segment_idxs = np.array([], dtype=int)
+		for extract_range in extract_ranges:
+			segment_ex_tract_idxs = np.where(all_cell_num_with_no_null_0_100[:, 2] == extract_range)[0]
+			segment_idxs = np.concatenate((segment_idxs, segment_ex_tract_idxs))
+		# segment_idxs_2 = np.where(all_cell_num_with_no_null_0_100[:, 2] == '1-5')[0]
+		# segment_idxs = np.concatenate((segment_idxs, segment_idxs_2))
 		
 		dataset = dataset.select(segment_idxs)
 		self.global_obj["dataset"] = dataset
 		print(dataset)
 
-		np.save(f"{self.trigger_path}/TrainDataset/train_index2_{0}_{5}.npy", segment_idxs)
+		output_dir_relative = self.input_args.get("output_dir_relative")
+		np.save(f"{self.trigger_path}/{output_dir_relative}/train_index2_{extract_ranges_str.replace(',', '_')}.npy", segment_idxs)
